@@ -1,0 +1,6 @@
+work/
+*.wlf
+transcript
+*.do
+*.bat
+*.ini
