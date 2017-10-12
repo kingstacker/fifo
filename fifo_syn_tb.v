@@ -7,7 +7,7 @@
 //  Description   :                              
 //************************************************
 `timescale 1ns/1ns
-module fifo_syn_tb #(parameter WIDTH = 8,DEPTH = 4)();
+module fifo_syn_tb #(parameter WIDTH = 8,DEPTH = 8)();
 parameter CYCLE = 4;
 //input;
 reg clk;
@@ -19,7 +19,6 @@ reg [WIDTH-1:0] data;
 wire [WIDTH-1:0] q;
 wire full;
 wire empty;
-wire [(DEPTH>>1)-1:0] usedw;
 
 //inst;
 fifo_syn  fifo_syn_u1(
@@ -30,8 +29,7 @@ fifo_syn  fifo_syn_u1(
     .data               (data),
     .q                  (q),
     .full               (full),
-    .empty              (empty),
-    .usedw              (usedw)
+    .empty              (empty)
 );
 //clk produce;
 initial begin
@@ -52,9 +50,15 @@ initial begin
     #(CYCLE*1) data = 8'h34;
     #(CYCLE*1) data = 8'h56;
     #(CYCLE*1) data = 8'h78;
+    #(CYCLE*1) data = 8'hcd;
+    #(CYCLE*1) data = 8'hcc;
+    #(CYCLE*1) data = 8'hdd;
+    #(CYCLE*1) data = 8'hee;
     #(CYCLE*1) wr = 1'b0;
     #(CYCLE*1) rd = 1'b1;
-    #(CYCLE*2) rd = 1'b0;
+    #(CYCLE*1) wr = 1'b1;
+    #(CYCLE*1) rd = 1'b1;
+    #(CYCLE*7) rd = 1'b0;
 end //initial
 
 endmodule

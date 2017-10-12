@@ -16,14 +16,12 @@ module  fifo_syn #(parameter WIDTH = 8,DEPTH = 8)(
     //output;
     output   wire    [WIDTH-1:0]  q,     //data out;       
     output   wire    full,               //fifo is full;
-    output   wire    empty,              //fifo is empty;
-    output   wire    [(DEPTH>>1)-2:0] usedw 
+    output   wire    empty              //fifo is empty;
 );
 reg [WIDTH-1:0]      memory [0:DEPTH-1];
 reg [(DEPTH>>1)-1:0] wr_poi;    //wr pointer;
 reg [(DEPTH>>1)-1:0] rd_poi;    //rd pointer;
 reg [WIDTH-1:0] q_r;            //reg q;
-reg [(DEPTH>>1)-2:0] usedw_r;   //reg usedw; 
 wire wr_flag;                   //real wr request;
 wire rd_flag;                   //real rd request;
 assign q = q_r;
@@ -48,26 +46,6 @@ always @(posedge clk or negedge rst_n) begin
     else begin
         rd_poi <= rd_flag ? rd_poi + 1'b1 : rd_poi;
         q_r <= rd_flag ? memory[rd_poi] : q_r;
-    end //else
-end //always
-//product usedw;
-assign usedw = usedw_r;
-always @(posedge clk or negedge rst_n) begin
-    if (~rst_n) begin
-        usedw_r <= 0;
-    end //if
-    else begin
-        if (wr_flag) begin
-        	usedw_r <= usedw_r + 1'b1;
-        end   
-        else begin
-        	if (rd_flag) begin
-        		usedw_r <= usedw_r - 1'b1;
-        	end
-        	else begin
-        		usedw_r <= usedw_r;
-        	end
-        end
     end //else
 end //always
 
