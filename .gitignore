@@ -5,3 +5,5 @@ transcript
 *.do
 *.bat
 *.ini
+#quartus
+quartus/
