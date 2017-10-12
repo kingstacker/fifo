@@ -55,10 +55,13 @@ initial begin
     #(CYCLE*1) data = 8'hdd;
     #(CYCLE*1) data = 8'hee;
     #(CYCLE*1) wr = 1'b0;
+    #(CYCLE*1) data = 8'h33;
     #(CYCLE*1) rd = 1'b1;
+    #(CYCLE*1) data = 8'h44;
     #(CYCLE*1) wr = 1'b1;
+    #(CYCLE*1) data = 8'h55;
+    #(CYCLE*1) wr = 1'b0;
     #(CYCLE*1) rd = 1'b1;
-    #(CYCLE*7) rd = 1'b0;
 end //initial
 
 endmodule
