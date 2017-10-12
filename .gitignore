@@ -3,8 +3,6 @@ work/
 *.wlf
 wlf*
 transcript
-*.do
-*.bat
 *.ini
 #quartus
 quartus/
