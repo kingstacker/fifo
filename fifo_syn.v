@@ -6,7 +6,7 @@
 //  Device        : Altera cyclone4 ep4ce6f17c8  
 //  Description   : synchronize fifo                             
 //************************************************
-module  fifo_syn #(parameter WIDTH = 8,DEPTH = 4)(
+module  fifo_syn #(parameter WIDTH = 8,DEPTH = 8)(
     //input;
     input    wire    clk,                //only one clock;
     input    wire    rst_n,
@@ -17,18 +17,18 @@ module  fifo_syn #(parameter WIDTH = 8,DEPTH = 4)(
     output   wire    [WIDTH-1:0]  q,     //data out;       
     output   wire    full,               //fifo is full;
     output   wire    empty,              //fifo is empty;
-    output   wire    [(DEPTH>>1)-1:0] usedw 
+    output   wire    [(DEPTH>>1)-2:0] usedw 
 );
 reg [WIDTH-1:0]      memory [0:DEPTH-1];
 reg [(DEPTH>>1)-1:0] wr_poi;    //wr pointer;
 reg [(DEPTH>>1)-1:0] rd_poi;    //rd pointer;
 reg [WIDTH-1:0] q_r;            //reg q;
-reg [(DEPTH>>1)-1:0] usedw_r;   //reg usedw; 
+reg [(DEPTH>>1)-2:0] usedw_r;   //reg usedw; 
 wire wr_flag;                   //real wr request;
 wire rd_flag;                   //real rd request;
 assign q = q_r;
-assign full = (((wr_poi-rd_poi) == (DEPTH-1))) ? 1'b1 : 1'b0;
-assign empty = ((wr_poi-rd_poi) == 0) ? 1'b1 : 1'b0;
+assign full = (wr_poi[2:0]== rd_poi[2:0]) && (wr_poi[3] ^ rd_poi[3] == 1);
+assign empty = (wr_poi[2:0]== rd_poi[2:0]) && (wr_poi[3] ^ rd_poi[3] == 0);
 assign wr_flag = ((wr == 1'b1) && (full == 1'b0));
 assign rd_flag = ((rd == 1'b1) && (empty == 1'b0));
 always @(posedge clk or negedge rst_n) begin
@@ -36,13 +36,8 @@ always @(posedge clk or negedge rst_n) begin
         wr_poi <= 0;
     end //if
     else begin
-        if (wr_poi == (DEPTH-1)) begin
-        	wr_poi <= 0;
-        end    
-        else begin
-        	wr_poi <= wr_flag ? wr_poi + 1'b1 : wr_poi;
-        	memory[wr_poi] <= wr_flag ? data : memory[wr_poi];
-        end
+        wr_poi <= wr_flag ? wr_poi + 1'b1 : wr_poi;
+        memory[wr_poi] <= wr_flag ? data : memory[wr_poi];
     end //else
 end //always
 always @(posedge clk or negedge rst_n) begin
@@ -51,13 +46,8 @@ always @(posedge clk or negedge rst_n) begin
         q_r <= 0;
     end //if
     else begin
-        if (rd_poi == (DEPTH-1)) begin
-        	rd_poi <= 0;
-        end
-        else begin
-        	rd_poi <= rd_flag ? rd_poi + 1'b1 : rd_poi;
-        	q_r <= rd_flag ? memory[rd_poi] : q_r;
-        end
+        rd_poi <= rd_flag ? rd_poi + 1'b1 : rd_poi;
+        q_r <= rd_flag ? memory[rd_poi] : q_r;
     end //else
 end //always
 //product usedw;
