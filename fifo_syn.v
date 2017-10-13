@@ -25,7 +25,7 @@ begin
         depth = depth >>1;                       	
 end
 endfunction               
-reg [WIDTH-1:0]      memory [0:DEPTH-1];
+(* ramstyle = "M9K" *) reg [WIDTH-1:0]      memory [0:DEPTH-1];
 reg [clogb2(DEPTH):0] wr_poi;    //wr pointer;
 reg [clogb2(DEPTH):0] rd_poi;    //rd pointer;
 reg [WIDTH-1:0] q_r;            //reg q;
