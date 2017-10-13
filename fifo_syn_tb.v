@@ -19,7 +19,7 @@ reg [WIDTH-1:0] data;
 wire [WIDTH-1:0] q;
 wire full;
 wire empty;
-wire [(DEPTH>>1)-2:0] usedw;
+wire [2:0] usedw;
 
 //inst;
 fifo_syn  fifo_syn_u1(

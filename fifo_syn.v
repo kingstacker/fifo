@@ -4,9 +4,9 @@
 //  Company       : School                       
 //  Email         : kingstacker_work@163.com     
 //  Device        : Altera cyclone4 ep4ce6f17c8  
-//  Description   : synchronize fifo ;8*8                            
+//  Description   : synchronize fifo ;8*8 ;depth shuold be 2^n,otherwise change the clogb2 funtion;                           
 //************************************************
-module  fifo_syn #(parameter WIDTH = 8,DEPTH = 8)(
+module  fifo_syn #(parameter WIDTH = 8,DEPTH = 8)( 
     //input;
     input    wire    clk,                //only one clock;
     input    wire    rst_n,
@@ -17,13 +17,19 @@ module  fifo_syn #(parameter WIDTH = 8,DEPTH = 8)(
     output   wire    [WIDTH-1:0]  q,     //data out;       
     output   wire    full,               //fifo is full;
     output   wire    empty,              //fifo is empty;
-    output   wire    [(DEPTH>>1)-2:0] usedw //data number in fifo;
+    output   wire    [clogb2(DEPTH)-1:0] usedw //data number in fifo;
 );
+function integer clogb2 (input integer depth);
+begin
+    for (clogb2=0; depth>1; clogb2=clogb2+1) //depth>1 when you choose depth 2^n;otherwise change it to depth>0;for example depth is 7;
+        depth = depth >>1;                       	
+end
+endfunction               
 reg [WIDTH-1:0]      memory [0:DEPTH-1];
-reg [(DEPTH>>1)-1:0] wr_poi;    //wr pointer;
-reg [(DEPTH>>1)-1:0] rd_poi;    //rd pointer;
+reg [clogb2(DEPTH):0] wr_poi;    //wr pointer;
+reg [clogb2(DEPTH):0] rd_poi;    //rd pointer;
 reg [WIDTH-1:0] q_r;            //reg q;
-reg [(DEPTH>>1)-1:0] usedw_r;   //reg usedw_r;
+reg [clogb2(DEPTH)-1:0] usedw_r;   //reg usedw_r;
 wire wr_flag;                   //real wr request;
 wire rd_flag;                   //real rd request;
 assign q = q_r;
