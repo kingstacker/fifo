@@ -4,7 +4,7 @@
 //  Company       : School                       
 //  Email         : kingstacker_work@163.com     
 //  Device        : Altera cyclone4 ep4ce6f17c8  
-//  Description   : asynchronize fifo;8*8;                             
+//  Description   : asynchronize fifo;8*8;depth shuold be 2^n;                             
 //************************************************
 module  fifo_asyn #(parameter WIDTH = 8,DEPTH = 8)(
     //input;
@@ -21,7 +21,7 @@ module  fifo_asyn #(parameter WIDTH = 8,DEPTH = 8)(
 );
 function integer clogb2 (input integer depth);
 begin
-    for (clogb2=0; depth>1; clogb2=clogb2+1) //depth>1 when you choose depth 2^n;otherwise change it to depth>0;for example depth is 7;
+    for (clogb2=0; depth>1; clogb2=clogb2+1) 
         depth = depth >>1;                          
 end
 endfunction               
@@ -40,8 +40,8 @@ reg [WIDTH-1:0] q_r;            //reg q;
 assign q = q_r;
 assign wr_poi_gray = wr_poi ^ (wr_poi>>1); //produce wr pointer gray code;
 assign rd_poi_gray = rd_poi ^ (rd_poi>>1); //produce rd pointer gray code;
-assign full =  (wr_poi_gray2 == {~rd_poi_gray2[clogb2(DEPTH):clogb2(DEPTH)-1],rd_poi_gray2[clogb2(DEPTH)-2:0]});
-assign empty = (wr_poi_gray2 == rd_poi_gray2);
+assign full =  (wr_poi_gray == {~rd_poi_gray2[clogb2(DEPTH):clogb2(DEPTH)-1],rd_poi_gray2[clogb2(DEPTH)-2:0]});
+assign empty = (wr_poi_gray2 == rd_poi_gray);
 assign wr_flag = ((wr == 1'b1) && (full == 1'b0));          //wr enable;
 assign rd_flag = ((rd == 1'b1) && (empty == 1'b0)); 
 always @(posedge wrclk or negedge rst_n) begin
@@ -50,7 +50,7 @@ always @(posedge wrclk or negedge rst_n) begin
     end //if
     else begin
         wr_poi <= wr_flag ? wr_poi + 1'b1 : wr_poi;
-        memory[wr_poi[2:0]] <= wr_flag ? data : memory[wr_poi[2:0]];
+        memory[wr_poi[clogb2(DEPTH)-1:0]] <= wr_flag ? data : memory[wr_poi[clogb2(DEPTH)-1:0]];
     end //else
 end //always
 always @(posedge rdclk or negedge rst_n) begin
@@ -60,7 +60,7 @@ always @(posedge rdclk or negedge rst_n) begin
     end //if
     else begin
         rd_poi <= rd_flag ? rd_poi + 1'b1 : rd_poi;
-        q_r <= rd_flag ? memory[rd_poi[2:0]] : q_r;
+        q_r <= rd_flag ? memory[rd_poi[clogb2(DEPTH)-1:0]] : q_r;
     end //else
 end //always
 always @(posedge rdclk or negedge rst_n) begin //syn wr poi gray code to rd clock domain;
